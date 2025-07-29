@@ -199,4 +199,22 @@ export const ordersAPI = {
   },
 };
 
+interface IntentData {
+  amount: number;
+  description: string;
+  currency: string;
+}
+// Payment API
+export const paymentAPI = {
+  createIntent: async (data: IntentData) => {
+    const response: AxiosResponse = await api.post(
+      `/orders/create-payment-intent/`, {
+      ...data
+    }
+    );
+    return response.data;
+  },
+}
+
+
 export default api;
