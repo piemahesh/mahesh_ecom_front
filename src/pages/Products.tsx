@@ -1,20 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Search, Filter } from 'lucide-react';
-import { AppDispatch, RootState } from '../store/store';
-import { fetchProducts, fetchCategories } from '../store/slices/productsSlice';
-import { addToCart } from '../store/slices/cartSlice';
-import ProductCard from '../components/products/ProductCard';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Search, Filter } from "lucide-react";
+import { AppDispatch, RootState } from "../store/store";
+import { fetchProducts, fetchCategories } from "../store/slices/productsSlice";
+import { addToCart } from "../store/slices/cartSlice";
+import ProductCard from "../components/products/ProductCard";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import { toast } from "react-toastify";
 
 const Products: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { products, categories, loading } = useSelector((state: RootState) => state.products);
+  const { products, categories, loading } = useSelector(
+    (state: RootState) => state.products
+  );
   const { user } = useSelector((state: RootState) => state.auth);
-  
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
@@ -24,10 +26,12 @@ const Products: React.FC = () => {
 
   useEffect(() => {
     const delayedSearch = setTimeout(() => {
-      dispatch(fetchProducts({
-        search: searchTerm,
-        category: selectedCategory,
-      }));
+      dispatch(
+        fetchProducts({
+          search: searchTerm,
+          category: selectedCategory,
+        })
+      );
     }, 500);
 
     return () => clearTimeout(delayedSearch);
@@ -35,15 +39,15 @@ const Products: React.FC = () => {
 
   const handleAddToCart = async (productId: number) => {
     if (!user) {
-      toast.error('Please login to add items to cart');
+      toast.error("Please login to add items to cart");
       return;
     }
-    
+
     try {
       await dispatch(addToCart({ productId, quantity: 1 })).unwrap();
-      toast.success('Product added to cart!');
+      toast.success("Product added to cart!");
     } catch (error) {
-      toast.error('Failed to add product to cart');
+      toast.error("Failed to add product to cart");
     }
   };
 
@@ -52,7 +56,7 @@ const Products: React.FC = () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">Products</h1>
-        
+
         {/* Search and Filters */}
         <div className="flex flex-col sm:flex-row gap-4">
           {/* Search */}
@@ -66,7 +70,7 @@ const Products: React.FC = () => {
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-          
+
           {/* Filter Toggle */}
           <button
             onClick={() => setShowFilters(!showFilters)}
@@ -78,7 +82,7 @@ const Products: React.FC = () => {
         </div>
 
         {/* Filters */}
-        <div className={`mt-4 ${showFilters ? 'block' : 'hidden'} sm:block`}>
+        <div className={`mt-4 ${showFilters ? "block" : "hidden"} sm:block`}>
           <div className="flex flex-wrap gap-4">
             <select
               value={selectedCategory}
@@ -86,7 +90,7 @@ const Products: React.FC = () => {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">All Categories</option>
-              {categories.map((category) => (
+              {categories?.results?.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name} ({category.products_count})
                 </option>

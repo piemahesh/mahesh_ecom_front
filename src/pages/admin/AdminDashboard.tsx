@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { 
-  Package, 
-  ShoppingCart, 
-  Users, 
+import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Package,
+  ShoppingCart,
+  Users,
   DollarSign,
   TrendingUp,
-  Calendar
-} from 'lucide-react';
-import { ordersAPI } from '../../services/api';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
+  Calendar,
+} from "lucide-react";
+import { ordersAPI } from "../../services/api";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 interface DashboardStats {
   totalOrders: number;
@@ -23,17 +23,44 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // const fetchDashboardData = async () => {
+    //   try {
+    //     // Note: In a real implementation, you'd have dedicated dashboard API endpoints
+    //     const orders = await ordersAPI.getOrders();
+
+    //     const totalOrders = orders.length;
+    //     const totalRevenue = orders.reduce((sum, order) =>
+    //       sum + parseFloat(order.total_amount), 0
+    //     );
+    //     const pendingOrders = orders.filter(order =>
+    //       order.status === 'pending'
+    //     ).length;
+    //     const recentOrders = orders.slice(0, 5);
+
+    //     setStats({
+    //       totalOrders,
+    //       totalRevenue,
+    //       pendingOrders,
+    //       recentOrders,
+    //     });
+    //   } catch (error) {
+    //     console.error('Failed to fetch dashboard data:', error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
     const fetchDashboardData = async () => {
       try {
-        // Note: In a real implementation, you'd have dedicated dashboard API endpoints
-        const orders = await ordersAPI.getOrders();
-        
+        const response = await ordersAPI.getOrders(); // This returns { count, next, previous, results }
+        const orders = response.results || [];
+
         const totalOrders = orders.length;
-        const totalRevenue = orders.reduce((sum, order) => 
-          sum + parseFloat(order.total_amount), 0
+        const totalRevenue = orders.reduce(
+          (sum, order) => sum + parseFloat(order.total_amount),
+          0
         );
-        const pendingOrders = orders.filter(order => 
-          order.status === 'pending'
+        const pendingOrders = orders.filter(
+          (order) => order.status === "pending"
         ).length;
         const recentOrders = orders.slice(0, 5);
 
@@ -44,7 +71,7 @@ const AdminDashboard: React.FC = () => {
           recentOrders,
         });
       } catch (error) {
-        console.error('Failed to fetch dashboard data:', error);
+        console.error("Failed to fetch dashboard data:", error);
       } finally {
         setLoading(false);
       }
@@ -94,7 +121,7 @@ const AdminDashboard: React.FC = () => {
             <div className="ml-4">
               <p className="text-sm text-gray-600">Total Revenue</p>
               <p className="text-2xl font-bold text-gray-900">
-                ${stats?.totalRevenue.toFixed(2) || '0.00'}
+                ${stats?.totalRevenue.toFixed(2) || "0.00"}
               </p>
             </div>
           </div>
@@ -130,7 +157,9 @@ const AdminDashboard: React.FC = () => {
       {/* Quick Actions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Quick Actions
+          </h2>
           <div className="space-y-3">
             <Link
               to="/admin/products"
@@ -139,10 +168,12 @@ const AdminDashboard: React.FC = () => {
               <Package className="h-5 w-5 text-blue-600 mr-3" />
               <div>
                 <p className="font-medium text-gray-900">Manage Products</p>
-                <p className="text-sm text-gray-600">Add, edit, or remove products</p>
+                <p className="text-sm text-gray-600">
+                  Add, edit, or remove products
+                </p>
               </div>
             </Link>
-            
+
             <Link
               to="/admin/orders"
               className="flex items-center p-3 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
@@ -150,7 +181,9 @@ const AdminDashboard: React.FC = () => {
               <ShoppingCart className="h-5 w-5 text-green-600 mr-3" />
               <div>
                 <p className="font-medium text-gray-900">Manage Orders</p>
-                <p className="text-sm text-gray-600">View and update order status</p>
+                <p className="text-sm text-gray-600">
+                  View and update order status
+                </p>
               </div>
             </Link>
           </div>
@@ -158,10 +191,15 @@ const AdminDashboard: React.FC = () => {
 
         {/* Recent Orders */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+            Recent Orders
+          </h2>
           <div className="space-y-3">
             {stats?.recentOrders.slice(0, 5).map((order) => (
-              <div key={order.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div
+                key={order.id}
+                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+              >
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 text-gray-400 mr-2" />
                   <div>
@@ -177,13 +215,19 @@ const AdminDashboard: React.FC = () => {
                   <p className="font-medium text-gray-900">
                     ${parseFloat(order.total_amount).toFixed(2)}
                   </p>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                    order.status === 'shipped' ? 'bg-purple-100 text-purple-800' :
-                    order.status === 'delivered' ? 'bg-green-100 text-green-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
+                  <span
+                    className={`text-xs px-2 py-1 rounded-full ${
+                      order.status === "pending"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : order.status === "processing"
+                        ? "bg-blue-100 text-blue-800"
+                        : order.status === "shipped"
+                        ? "bg-purple-100 text-purple-800"
+                        : order.status === "delivered"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
                     {order.status}
                   </span>
                 </div>

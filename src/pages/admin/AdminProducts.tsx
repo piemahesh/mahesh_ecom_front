@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Plus, Edit, Trash2, Package } from 'lucide-react';
-import { AppDispatch, RootState } from '../../store/store';
-import { fetchProducts, fetchCategories } from '../../store/slices/productsSlice';
-import { productsAPI } from '../../services/api';
-import ProductCard from '../../components/products/ProductCard';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Plus, Edit, Trash2, Package } from "lucide-react";
+import { AppDispatch, RootState } from "../../store/store";
+import {
+  fetchProducts,
+  fetchCategories,
+} from "../../store/slices/productsSlice";
+import { productsAPI } from "../../services/api";
+import ProductCard from "../../components/products/ProductCard";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { toast } from "react-toastify";
 
 interface ProductForm {
   name: string;
@@ -19,7 +22,9 @@ interface ProductForm {
 
 const AdminProducts: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { products, categories, loading } = useSelector((state: RootState) => state.products);
+  const { products, categories, loading } = useSelector(
+    (state: RootState) => state.products
+  );
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -34,21 +39,21 @@ const AdminProducts: React.FC = () => {
     setSubmitting(true);
 
     const formData = new FormData(e.currentTarget);
-    
+
     try {
       if (editingProduct) {
         await productsAPI.updateProduct(editingProduct.id, formData);
-        toast.success('Product updated successfully!');
+        toast.success("Product updated successfully!");
       } else {
         await productsAPI.createProduct(formData);
-        toast.success('Product created successfully!');
+        toast.success("Product created successfully!");
       }
-      
+
       setShowModal(false);
       setEditingProduct(null);
       dispatch(fetchProducts());
     } catch (error) {
-      toast.error('Failed to save product');
+      toast.error("Failed to save product");
     } finally {
       setSubmitting(false);
     }
@@ -60,13 +65,13 @@ const AdminProducts: React.FC = () => {
   };
 
   const handleDelete = async (productId: number) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+    if (window.confirm("Are you sure you want to delete this product?")) {
       try {
         await productsAPI.deleteProduct(productId);
-        toast.success('Product deleted successfully!');
+        toast.success("Product deleted successfully!");
         dispatch(fetchProducts());
       } catch (error) {
-        toast.error('Failed to delete product');
+        toast.error("Failed to delete product");
       }
     }
   };
@@ -81,7 +86,9 @@ const AdminProducts: React.FC = () => {
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center space-x-3">
           <Package className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Product Management
+          </h1>
         </div>
         <button
           onClick={openCreateModal}
@@ -99,7 +106,7 @@ const AdminProducts: React.FC = () => {
           {products.map((product) => (
             <div key={product.id} className="relative group">
               <ProductCard product={product} showAddToCart={false} />
-              
+
               {/* Admin Actions Overlay */}
               <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="flex space-x-2">
@@ -127,9 +134,9 @@ const AdminProducts: React.FC = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto">
             <h2 className="text-xl font-bold text-gray-900 mb-4">
-              {editingProduct ? 'Edit Product' : 'Add New Product'}
+              {editingProduct ? "Edit Product" : "Add New Product"}
             </h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -139,7 +146,7 @@ const AdminProducts: React.FC = () => {
                   name="name"
                   type="text"
                   required
-                  defaultValue={editingProduct?.name || ''}
+                  defaultValue={editingProduct?.name || ""}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -152,7 +159,7 @@ const AdminProducts: React.FC = () => {
                   name="description"
                   required
                   rows={3}
-                  defaultValue={editingProduct?.description || ''}
+                  defaultValue={editingProduct?.description || ""}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
@@ -167,7 +174,7 @@ const AdminProducts: React.FC = () => {
                     type="number"
                     step="0.01"
                     required
-                    defaultValue={editingProduct?.price || ''}
+                    defaultValue={editingProduct?.price || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -180,7 +187,7 @@ const AdminProducts: React.FC = () => {
                     name="stock"
                     type="number"
                     required
-                    defaultValue={editingProduct?.stock || ''}
+                    defaultValue={editingProduct?.stock || ""}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -193,11 +200,11 @@ const AdminProducts: React.FC = () => {
                 <select
                   name="category"
                   required
-                  defaultValue={editingProduct?.category || ''}
+                  defaultValue={editingProduct?.category || ""}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select a category</option>
-                  {categories.map((category) => (
+                  {categories?.results?.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
                     </option>
@@ -221,6 +228,22 @@ const AdminProducts: React.FC = () => {
                   </p>
                 )}
               </div>
+              <div className="flex items-center space-x-3">
+                <label htmlFor="is_active" className="text-sm text-gray-700">
+                  Active Product
+                </label>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id="is_active"
+                    name="is_active"
+                    defaultChecked={editingProduct?.is_active ?? true}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer peer-checked:bg-blue-600 transition duration-300"></div>
+                  <div className="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow-md transform peer-checked:translate-x-full transition duration-300"></div>
+                </label>
+              </div>
 
               <div className="flex space-x-4 pt-4">
                 <button
@@ -235,7 +258,11 @@ const AdminProducts: React.FC = () => {
                   disabled={submitting}
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
                 >
-                  {submitting ? 'Saving...' : editingProduct ? 'Update' : 'Create'}
+                  {submitting
+                    ? "Saving..."
+                    : editingProduct
+                    ? "Update"
+                    : "Create"}
                 </button>
               </div>
             </form>

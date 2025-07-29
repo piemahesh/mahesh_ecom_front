@@ -4,7 +4,7 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
-  role: 'customer' | 'admin';
+  role: "customer" | "admin";
   phone?: string;
   address?: string;
   date_joined: string;
@@ -23,5 +23,6 @@ export interface RegisterData {
   password: string;
   password_confirm: string;
   phone?: string;
+  role?: string;
   address?: string;
 }
