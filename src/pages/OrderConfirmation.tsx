@@ -1,37 +1,45 @@
-import React, { useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import { CheckCircle, Download, Package } from 'lucide-react';
-import { AppDispatch, RootState } from '../store/store';
-import { fetchOrderById } from '../store/slices/ordersSlice';
-import { ordersAPI } from '../services/api';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import { toast } from 'react-toastify';
+import React, { useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { CheckCircle, Download, Package } from "lucide-react";
+import { AppDispatch, RootState } from "../store/store";
+import { fetchOrderById } from "../store/slices/ordersSlice";
+import { ordersAPI } from "../services/api";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import { toast } from "react-toastify";
 
 const OrderConfirmation: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const dispatch = useDispatch<AppDispatch>();
-  const { currentOrder: order, loading } = useSelector((state: RootState) => state.orders);
+  const { currentOrder: order, loading } = useSelector(
+    (state: RootState) => state.orders
+  );
+
+  console.log(orderId);
 
   useEffect(() => {
-    if (orderId) {
-      dispatch(fetchOrderById(orderId));
-    }
+    if (!orderId) return;
+    console.log("hitet");
+    dispatch(fetchOrderById(orderId))
+      .unwrap()
+      .catch(() => {
+        toast.error("Failed to fetch order details");
+      });
   }, [dispatch, orderId]);
 
   const handleDownloadReceipt = async () => {
     if (!order) return;
-    
+
     try {
       const pdfBlob = await ordersAPI.downloadReceipt(order.id);
       const url = window.URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = `order_${order.id}_receipt.pdf`;
       link.click();
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      toast.error('Failed to download receipt');
+      toast.error("Failed to download receipt");
     }
   };
 
@@ -80,25 +88,33 @@ const OrderConfirmation: React.FC = () => {
                 Order #{order.id}
               </h2>
               <p className="text-sm text-gray-600">
-                Placed on {new Date(order.created_at).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
+                Placed on{" "}
+                {new Date(order.created_at).toLocaleDateString("en-US", {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </p>
             </div>
             <div className="text-right">
-              <div className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
-                order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                order.status === 'shipped' ? 'bg-purple-100 text-purple-800' :
-                order.status === 'delivered' ? 'bg-green-100 text-green-800' :
-                'bg-red-100 text-red-800'
-              }`}>
-                {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+              <div
+                className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
+                  order.status === "pending"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : order.status === "processing"
+                    ? "bg-blue-100 text-blue-800"
+                    : order.status === "shipped"
+                    ? "bg-purple-100 text-purple-800"
+                    : order.status === "delivered"
+                    ? "bg-green-100 text-green-800"
+                    : "bg-red-100 text-red-800"
+                }`}
+              >
+                {order?.status?.charAt(0).toUpperCase() +
+                  order?.status?.slice(1)}
               </div>
             </div>
           </div>
@@ -107,30 +123,34 @@ const OrderConfirmation: React.FC = () => {
         <div className="p-6">
           {/* Order Items */}
           <div className="mb-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Order Items</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Order Items
+            </h3>
             <div className="space-y-4">
-              {order.items.map((item) => (
-                <div key={item.id} className="flex items-center space-x-4">
-                  <div className="flex-shrink-0">
-                    <img
-                      src={item.product.image || '/placeholder-product.jpg'}
-                      alt={item.product.name}
-                      className="h-16 w-16 object-cover rounded-md"
-                    />
+              {Array.isArray(order.items) &&
+                order.items.map((item) => (
+                  <div key={item.id} className="flex items-center space-x-4">
+                    <div className="flex-shrink-0">
+                      <img
+                        src={item.product.image || "/placeholder-product.jpg"}
+                        alt={item.product.name}
+                        className="h-16 w-16 object-cover rounded-md"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-lg font-medium text-gray-900">
+                        {item.product.name}
+                      </h4>
+                      <p className="text-sm text-gray-600">
+                        Quantity: {item.quantity} × $
+                        {parseFloat(item.price).toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="text-lg font-medium text-gray-900">
+                      ${parseFloat(item.total_price).toFixed(2)}
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h4 className="text-lg font-medium text-gray-900">
-                      {item.product.name}
-                    </h4>
-                    <p className="text-sm text-gray-600">
-                      Quantity: {item.quantity} × ${parseFloat(item.price).toFixed(2)}
-                    </p>
-                  </div>
-                  <div className="text-lg font-medium text-gray-900">
-                    ${parseFloat(item.total_price).toFixed(2)}
-                  </div>
-                </div>
-              ))}
+                ))}
             </div>
           </div>
 
@@ -163,7 +183,7 @@ const OrderConfirmation: React.FC = () => {
           <Download className="h-5 w-5" />
           <span>Download Receipt</span>
         </button>
-        
+
         <Link
           to="/orders"
           className="flex items-center justify-center space-x-2 bg-gray-200 text-gray-800 px-6 py-3 rounded-md hover:bg-gray-300 transition-colors"
@@ -171,7 +191,7 @@ const OrderConfirmation: React.FC = () => {
           <Package className="h-5 w-5" />
           <span>View All Orders</span>
         </Link>
-        
+
         <Link
           to="/products"
           className="flex items-center justify-center space-x-2 border border-blue-600 text-blue-600 px-6 py-3 rounded-md hover:bg-blue-50 transition-colors"

@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { CreditCard, MapPin, Package } from 'lucide-react';
-import { AppDispatch, RootState } from '../store/store';
-import { fetchCart } from '../store/slices/cartSlice';
-import { createOrder } from '../store/slices/ordersSlice';
-import LoadingSpinner from '../components/common/LoadingSpinner';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { CreditCard, MapPin, Package } from "lucide-react";
+import { AppDispatch, RootState } from "../store/store";
+import { fetchCart } from "../store/slices/cartSlice";
+import { createOrder } from "../store/slices/ordersSlice";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import { toast } from "react-toastify";
 
 interface CheckoutForm {
   shipping_address: string;
@@ -17,16 +17,20 @@ interface CheckoutForm {
 const Checkout: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-  const { cart, loading: cartLoading } = useSelector((state: RootState) => state.cart);
-  const { loading: orderLoading } = useSelector((state: RootState) => state.orders);
+  const { cart, loading: cartLoading } = useSelector(
+    (state: RootState) => state.cart
+  );
+  const { loading: orderLoading } = useSelector(
+    (state: RootState) => state.orders
+  );
   const { user } = useSelector((state: RootState) => state.auth);
-  
+
   const [currentStep, setCurrentStep] = useState(1);
-  const { 
-    register, 
-    handleSubmit, 
+  const {
+    register,
+    handleSubmit,
     formState: { errors },
-    setValue 
+    setValue,
   } = useForm<CheckoutForm>();
 
   useEffect(() => {
@@ -35,22 +39,23 @@ const Checkout: React.FC = () => {
 
   useEffect(() => {
     if (user?.address) {
-      setValue('shipping_address', user.address);
+      setValue("shipping_address", user.address);
     }
   }, [user, setValue]);
 
   const onSubmit = async (data: CheckoutForm) => {
     if (!cart || cart.items.length === 0) {
-      toast.error('Your cart is empty');
+      toast.error("Your cart is empty");
       return;
     }
 
     try {
-      const order = await dispatch(createOrder(data)).unwrap();
-      toast.success('Order placed successfully!');
-      navigate(`/order-confirmation/${order.id}`);
+      const { id, ...rest } = await dispatch(createOrder(data)).unwrap();
+      navigate(`/order-confirmation/${id}`);
+      console.log(rest);
+      toast.success("Order placed successfully!");
     } catch (error) {
-      toast.error('Failed to place order');
+      toast.error("Failed to place order");
     }
   };
 
@@ -63,14 +68,14 @@ const Checkout: React.FC = () => {
   }
 
   if (!cart || cart.items.length === 0) {
-    navigate('/cart');
+    navigate("/cart");
     return null;
   }
 
   const steps = [
-    { id: 1, name: 'Shipping', icon: MapPin },
-    { id: 2, name: 'Payment', icon: CreditCard },
-    { id: 3, name: 'Review', icon: Package },
+    { id: 1, name: "Shipping", icon: MapPin },
+    { id: 2, name: "Payment", icon: CreditCard },
+    { id: 3, name: "Review", icon: Package },
   ];
 
   return (
@@ -84,21 +89,25 @@ const Checkout: React.FC = () => {
             const Icon = step.icon;
             const isActive = currentStep === step.id;
             const isCompleted = currentStep > step.id;
-            
+
             return (
               <div key={step.id} className="flex flex-col items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                  isCompleted 
-                    ? 'bg-green-500 text-white' 
-                    : isActive 
-                    ? 'bg-blue-600 text-white' 
-                    : 'bg-gray-300 text-gray-600'
-                }`}>
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                    isCompleted
+                      ? "bg-green-500 text-white"
+                      : isActive
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-300 text-gray-600"
+                  }`}
+                >
                   <Icon className="h-5 w-5" />
                 </div>
-                <span className={`mt-2 text-sm ${
-                  isActive ? 'text-blue-600 font-medium' : 'text-gray-500'
-                }`}>
+                <span
+                  className={`mt-2 text-sm ${
+                    isActive ? "text-blue-600 font-medium" : "text-gray-500"
+                  }`}
+                >
                   {step.name}
                 </span>
               </div>
@@ -117,14 +126,14 @@ const Checkout: React.FC = () => {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                   Shipping Information
                 </h2>
-                
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Shipping Address *
                   </label>
                   <textarea
-                    {...register('shipping_address', { 
-                      required: 'Shipping address is required' 
+                    {...register("shipping_address", {
+                      required: "Shipping address is required",
                     })}
                     rows={4}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -153,13 +162,13 @@ const Checkout: React.FC = () => {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                   Payment Method
                 </h2>
-                
+
                 <div className="space-y-4">
                   <div>
                     <label className="flex items-center space-x-3">
                       <input
-                        {...register('payment_method', { 
-                          required: 'Please select a payment method' 
+                        {...register("payment_method", {
+                          required: "Please select a payment method",
                         })}
                         type="radio"
                         value="stripe"
@@ -168,11 +177,11 @@ const Checkout: React.FC = () => {
                       <span>Credit/Debit Card (Stripe)</span>
                     </label>
                   </div>
-                  
+
                   <div>
                     <label className="flex items-center space-x-3">
                       <input
-                        {...register('payment_method')}
+                        {...register("payment_method")}
                         type="radio"
                         value="mock"
                         className="h-4 w-4 text-blue-600"
@@ -181,7 +190,7 @@ const Checkout: React.FC = () => {
                     </label>
                   </div>
                 </div>
-                
+
                 {errors.payment_method && (
                   <p className="mt-2 text-sm text-red-600">
                     {errors.payment_method.message}
@@ -213,14 +222,18 @@ const Checkout: React.FC = () => {
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
                   Review Your Order
                 </h2>
-                
+
                 <div className="space-y-4 mb-6">
                   {cart.items.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center">
+                    <div
+                      key={item.id}
+                      className="flex justify-between items-center"
+                    >
                       <div>
                         <p className="font-medium">{item.product.name}</p>
                         <p className="text-sm text-gray-600">
-                          Quantity: {item.quantity} × ${parseFloat(item.product.price).toFixed(2)}
+                          Quantity: {item.quantity} × $
+                          {parseFloat(item.product.price).toFixed(2)}
                         </p>
                       </div>
                       <p className="font-medium">
@@ -243,7 +256,7 @@ const Checkout: React.FC = () => {
                     disabled={orderLoading}
                     className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
                   >
-                    {orderLoading ? 'Placing Order...' : 'Place Order'}
+                    {orderLoading ? "Placing Order..." : "Place Order"}
                   </button>
                 </div>
               </div>
@@ -257,7 +270,7 @@ const Checkout: React.FC = () => {
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Order Summary
             </h2>
-            
+
             <div className="space-y-2 mb-4">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
@@ -277,10 +290,11 @@ const Checkout: React.FC = () => {
                 <span>${parseFloat(cart.total_price).toFixed(2)}</span>
               </div>
             </div>
-            
+
             <div className="text-sm text-gray-600">
               <p className="mb-2">
-                {cart.total_items} item{cart.total_items !== 1 ? 's' : ''} in your cart
+                {cart.total_items} item{cart.total_items !== 1 ? "s" : ""} in
+                your cart
               </p>
               <p>Free shipping on all orders!</p>
             </div>

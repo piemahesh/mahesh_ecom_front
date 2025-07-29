@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import { Package, Calendar, User, DollarSign, Eye } from 'lucide-react';
-import { ordersAPI } from '../../services/api';
-import LoadingSpinner from '../../components/common/LoadingSpinner';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { Package, Calendar, User, DollarSign, Eye } from "lucide-react";
+import { ordersAPI } from "../../services/api";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
+import { toast } from "react-toastify";
 
 interface Order {
   id: string;
@@ -26,10 +26,10 @@ const AdminOrders: React.FC = () => {
 
   const fetchOrders = async () => {
     try {
-      const data = await ordersAPI.getOrders();
+      const data = await ordersAPI.getAdminOrders();
       setOrders(data);
     } catch (error) {
-      toast.error('Failed to fetch orders');
+      toast.error("Failed to fetch orders");
     } finally {
       setLoading(false);
     }
@@ -37,36 +37,28 @@ const AdminOrders: React.FC = () => {
 
   const handleStatusUpdate = async (orderId: string, newStatus: string) => {
     try {
-      await fetch(`/api/orders/admin/${orderId}/status/`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      
-      toast.success('Order status updated successfully!');
+      await ordersAPI.updateOrderStatus(orderId, newStatus);
+      toast.success("Order status updated successfully!");
       fetchOrders();
     } catch (error) {
-      toast.error('Failed to update order status');
+      toast.error("Failed to update order status");
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'processing':
-        return 'bg-blue-100 text-blue-800';
-      case 'shipped':
-        return 'bg-purple-100 text-purple-800';
-      case 'delivered':
-        return 'bg-green-100 text-green-800';
-      case 'cancelled':
-        return 'bg-red-100 text-red-800';
+      case "pending":
+        return "bg-yellow-100 text-yellow-800";
+      case "processing":
+        return "bg-blue-100 text-blue-800";
+      case "shipped":
+        return "bg-purple-100 text-purple-800";
+      case "delivered":
+        return "bg-green-100 text-green-800";
+      case "cancelled":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -91,15 +83,19 @@ const AdminOrders: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900">Order Management</h1>
         </div>
         <div className="text-gray-600">
-          {orders.length} total order{orders.length !== 1 ? 's' : ''}
+          {orders.length} total order{orders.length !== 1 ? "s" : ""}
         </div>
       </div>
 
       {orders.length === 0 ? (
         <div className="text-center py-12">
           <Package className="h-24 w-24 text-gray-400 mx-auto mb-6" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">No orders yet</h2>
-          <p className="text-gray-600">Orders will appear here when customers make purchases.</p>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+            No orders yet
+          </h2>
+          <p className="text-gray-600">
+            Orders will appear here when customers make purchases.
+          </p>
         </div>
       ) : (
         <div className="bg-white shadow-lg rounded-lg overflow-hidden">
@@ -154,8 +150,12 @@ const AdminOrders: React.FC = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <select
                         value={order.status}
-                        onChange={(e) => handleStatusUpdate(order.id, e.target.value)}
-                        className={`text-sm rounded-full px-3 py-1 font-medium ${getStatusColor(order.status)} border-0 focus:ring-2 focus:ring-blue-500`}
+                        onChange={(e) =>
+                          handleStatusUpdate(order.id, e.target.value)
+                        }
+                        className={`text-sm rounded-full px-3 py-1 font-medium ${getStatusColor(
+                          order.status
+                        )} border-0 focus:ring-2 focus:ring-blue-500`}
                       >
                         <option value="pending">Pending</option>
                         <option value="processing">Processing</option>
@@ -209,23 +209,36 @@ const AdminOrders: React.FC = () => {
               {/* Order Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Customer:</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Customer:
+                  </span>
                   <p className="text-gray-900">{selectedOrder.user_email}</p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Order Date:</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Order Date:
+                  </span>
                   <p className="text-gray-900">
                     {new Date(selectedOrder.created_at).toLocaleDateString()}
                   </p>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Status:</span>
-                  <span className={`inline-block px-2 py-1 rounded-full text-sm ${getStatusColor(selectedOrder.status)}`}>
-                    {selectedOrder.status.charAt(0).toUpperCase() + selectedOrder.status.slice(1)}
+                  <span className="text-sm font-medium text-gray-500">
+                    Status:
+                  </span>
+                  <span
+                    className={`inline-block px-2 py-1 rounded-full text-sm ${getStatusColor(
+                      selectedOrder.status
+                    )}`}
+                  >
+                    {selectedOrder.status.charAt(0).toUpperCase() +
+                      selectedOrder.status.slice(1)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Total:</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Total:
+                  </span>
                   <p className="text-gray-900 font-bold">
                     ${parseFloat(selectedOrder.total_amount).toFixed(2)}
                   </p>
@@ -234,19 +247,27 @@ const AdminOrders: React.FC = () => {
 
               {/* Order Items */}
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Order Items</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                  Order Items
+                </h3>
                 <div className="space-y-3">
                   {selectedOrder.items.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg">
+                    <div
+                      key={item.id}
+                      className="flex items-center space-x-4 p-3 bg-gray-50 rounded-lg"
+                    >
                       <img
-                        src={item.product.image || '/placeholder-product.jpg'}
+                        src={item.product.image || "/placeholder-product.jpg"}
                         alt={item.product.name}
                         className="h-12 w-12 object-cover rounded-md"
                       />
                       <div className="flex-1">
-                        <p className="font-medium text-gray-900">{item.product.name}</p>
+                        <p className="font-medium text-gray-900">
+                          {item.product.name}
+                        </p>
                         <p className="text-sm text-gray-600">
-                          Quantity: {item.quantity} × ${parseFloat(item.price).toFixed(2)}
+                          Quantity: {item.quantity} × $
+                          {parseFloat(item.price).toFixed(2)}
                         </p>
                       </div>
                       <div className="text-right">
